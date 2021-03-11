@@ -1,0 +1,26 @@
+from loader import usersdb
+from utils.set_bot_commands import set_default_commands
+
+
+async def on_startup(dp):
+    import filters
+    import middlewares
+    filters.setup(dp)
+    middlewares.setup(dp)
+    for i in usersdb.select_all_users():
+        print(i)
+
+    from utils.notify_admins import on_startup_notify
+    await on_startup_notify(dp)
+    await set_default_commands(dp)
+
+
+if __name__ == '__main__':
+    from aiogram import executor
+    try:
+        usersdb.create_table_users()
+    except Exception as err:
+        print(err)
+    from handlers import dp
+
+    executor.start_polling(dp, on_startup=on_startup)
